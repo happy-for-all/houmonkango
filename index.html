@@ -1271,6 +1271,14 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
+     function setCandidateClientLabel(jigyoshoNo, label){
+    const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
+    if (c){
+      c.clientLabel = label;
+      saveCandidates();
+    }
+  }
+
   // 変更後
   function markAsReferred(jigyoshoNo){
     const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
