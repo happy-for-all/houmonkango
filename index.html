@@ -1214,6 +1214,7 @@ a{ color: var(--color-primary-dark); }
     } else {
       const station = allStations.find(s => s.jigyosho_no === jigyoshoNo);
       if (!station) return;
+      // 変更後（statusの下に1行追加）
       candidates.push({
         jigyosho_no: station.jigyosho_no,
         name: station.name,
@@ -1225,6 +1226,7 @@ a{ color: var(--color-primary-dark); }
         available_days: station.available_days,
         night_emergency_hint: station.night_emergency_hint,
         status: "unknown",
+        clientLabel: "",
         addedAt: new Date().toISOString(),
       });
     }
@@ -1260,10 +1262,11 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
+  // 変更後
   function markAsReferred(jigyoshoNo){
     const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
     if (!c) return;
-    const clientLabel = window.prompt("どなたの候補として紹介しましたか？（任意・例：Aさん）", "") || "";
+    const clientLabel = window.prompt("どなたの候補として紹介しましたか？（任意・例：Aさん）", c.clientLabel || "") || "";
     referralHistory.unshift({
       jigyosho_no: c.jigyosho_no,
       name: c.name,
@@ -1323,10 +1326,18 @@ a{ color: var(--color-primary-dark); }
         `<button class="status-btn ${c.status === key ? "active-" + key : ""}" onclick="window.__houmonkango.setStatus('${escapeAttr(c.jigyosho_no)}','${key}')">${STATUS_LABELS[key]}</button>`
       ).join("");
 
+      // 変更後（cand-addressの後に入力欄を追加）
       return `
         <div class="candidate-row">
           <div class="cand-name">${escapeHtml(c.name)}</div>
           <div class="cand-address">📍 ${escapeHtml(c.address)}</div>
+          <input
+            type="text"
+            class="client-label-input"
+            placeholder="利用者名（任意・例：Aさん）"
+            value="${escapeAttr(c.clientLabel || '')}"
+            onchange="window.__houmonkango.setClientLabel('${escapeAttr(c.jigyosho_no)}', this.value)"
+          >
           <div class="status-btns">${statusBtns}</div>
           <div class="candidate-row-actions">
             ${c.tel ? `<a class="mini-btn" href="tel:${c.tel_clean || ''}">📞 電話</a>` : ""}
@@ -1403,9 +1414,11 @@ a{ color: var(--color-primary-dark); }
 
     printArea.innerHTML = `
       <h1 style="font-family:sans-serif;">訪問看護 候補リスト（${new Date().toLocaleDateString("ja-JP")}時点）</h1>
+      // 変更後
       ${candidates.map(c => `
         <div style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
           <div style="font-weight:bold; font-size:16px;">${escapeHtml(c.name)}</div>
+          ${c.clientLabel ? `<div>利用者：${escapeHtml(c.clientLabel)}</div>` : ""}
           <div>住所：${escapeHtml(c.address)}</div>
           <div>電話：${escapeHtml(c.tel || "情報なし")}</div>
           <div>ホームページ：${escapeHtml(c.url || "情報なし")}</div>
@@ -1425,10 +1438,12 @@ a{ color: var(--color-primary-dark); }
     window.print();
   });
 
+ // 変更後
   window.__houmonkango = {
     toggleCandidate,
     removeCandidate,
     setStatus: setCandidateStatus,
+    setClientLabel: setCandidateClientLabel,
     markReferred: markAsReferred,
     removeHistory: removeHistoryEntry,
   };
