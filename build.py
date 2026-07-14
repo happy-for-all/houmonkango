@@ -174,4 +174,173 @@ SPECIALTY_CATEGORIES = ["mental", "medical_care", "pediatric", "rehabilitation"]
 def build_specialty_tags(jigyosho_no, specialty_data):
     """
     事業所番号をキーにColabリサーチ結果を検索し、各カテゴリの
-    status（specialized / mentioned /
+    status（specialized / mentioned / None）だけをフロント用に抽出する。
+    リサーチ対象外（都道府県が未リサーチ・URLが無かった等）の場合は
+    全カテゴリNoneのまま返す（＝「情報なし」として安全に表示される）。
+    """
+    tags = {cat: None for cat in SPECIALTY_CATEGORIES}
+
+    entry = specialty_data.get(jigyosho_no)
+    if not entry or entry.get("error") or not entry.get("tags"):
+        return tags
+
+    for cat in SPECIALTY_CATEGORIES:
+        cat_result = entry["tags"].get(cat)
+        if cat_result:
+            tags[cat] = cat_result.get("status")  # "specialized" / "mentioned" / None
+
+    return tags
+
+
+# ------------------------------------------------------------
+# 9. 1事業所分のレコードを組み立てる
+# ------------------------------------------------------------
+def build_url(raw_url):
+    """
+    全角文字混入・スキーム抜けを補正し、正しく開けるURLに整える。
+    どうしても直せない・空欄の場合は None を返す（フロント側で
+    「ホームページ情報なし」として扱われる）。
+    """
+    url = safe_str(raw_url)
+    if not url:
+        return None
+
+    url = re.sub(r"^(https?):(?!//)", r"\1://", url)
+    url = re.sub(r"^(https?)//", r"\1://", url)
+
+    if not re.match(r"^https?://", url):
+        url = "https://" + url
+
+    return url
+
+
+def build_station_record(row, specialty_data):
+    jigyosho_no = safe_str(row.get("事業所番号")) or ""
+
+    tel_display, tel_clean = clean_phone(row.get("電話番号"))
+    fax_display, fax_clean = clean_phone(row.get("FAX番号"))
+
+    address = safe_str(row.get("住所")) or ""
+    # 👑 修正済み（2026-07-14）：実データ検証の結果、「方書（ビル名等）」列の内容は
+    # 100%のケースで「住所」列に既に含まれていることが判明したため、
+    # 方書列は使わず、住所列をそのまま採用する（二重表示バグの修正）。
+    full_address = address
+
+    try:
+        lat = float(row.get("緯度"))
+    except (TypeError, ValueError):
+        lat = None
+    try:
+        lon = float(row.get("経度"))
+    except (TypeError, ValueError):
+        lon = None
+
+    try:
+        capacity = int(float(row.get("定員")))
+    except (TypeError, ValueError):
+        capacity = None
+
+    record = {
+        "jigyosho_no": jigyosho_no,
+        "name": safe_str(row.get("事業所名")) or "",
+        "name_kana": safe_str(row.get("事業所名カナ")) or "",
+        "corporation_name": safe_str(row.get("法人の名称")) or "",
+        "prefecture": row.get("都道府県名"),
+        "city": row.get("市区町村名"),
+        "address": full_address,
+        "lat": lat,
+        "lon": lon,
+        "tel": tel_display,
+        "tel_clean": tel_clean,
+        "fax": fax_display,
+        "fax_clean": fax_clean,
+        "url": build_url(row.get("URL")),
+        "capacity": capacity,
+        "available_days": parse_available_days(row.get("利用可能曜日")),
+        "remarks": safe_str(row.get("利用可能曜日特記事項")),
+        "night_emergency_hint": detect_night_emergency_hint(row.get("利用可能曜日特記事項")),
+        "specialty_tags": build_specialty_tags(jigyosho_no, specialty_data),
+    }
+
+    return record
+
+
+# ------------------------------------------------------------
+# 10. メインのビルド処理
+# ------------------------------------------------------------
+def main():
+    print("==========================================")
+    print("🌿 訪問看護ナビ（全国版） ビルド開始")
+    print("==========================================")
+
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    df = load_csv_with_encoding_fallback(CSV_PATH)
+    print(f"CSV読み込み完了：全国{len(df)}件")
+
+    # 👑 変更済み（2026-07-15）：関西6府県への絞り込みをやめ、
+    # ALL_PREFECTURESに含まれる47都道府県すべてを対象にする
+    # （データに含まれない想定外の都道府県名があれば安全側で除外する）
+    df_national = df[df["都道府県名"].isin(ALL_PREFECTURES.keys())].copy()
+    print(f"対象件数：{len(df_national)}件（全国47都道府県）")
+
+    if os.path.exists(SPECIALTY_JSON_PATH):
+        with open(SPECIALTY_JSON_PATH, "r", encoding="utf-8") as f:
+            specialty_data = json.load(f)
+        print(f"特化情報リサーチ結果を読み込み：{len(specialty_data)}件分（関西のみ）")
+    else:
+        specialty_data = {}
+        print("⚠️ specialty_result_kansai.json が見つからないため、特化タグ無しでビルドします")
+
+    manifest = {
+        "csv_source": CSV_SOURCE_LABEL,
+        "specialty_research_count": len(specialty_data),
+        "specialty_researched_prefectures": SPECIALTY_RESEARCHED_PREFECTURES,
+        "prefectures": {},
+        "total_count": 0,
+    }
+
+    for pref_name, pref_slug in ALL_PREFECTURES.items():
+        df_pref = df_national[df_national["都道府県名"] == pref_name]
+
+        records = [build_station_record(row, specialty_data) for _, row in df_pref.iterrows()]
+
+        output_path = os.path.join(OUTPUT_DIR, f"data_{pref_slug}.json")
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(records, f, ensure_ascii=False, indent=2)
+
+        manifest["prefectures"][pref_slug] = {
+            "name": pref_name,
+            "count": len(records),
+        }
+        manifest["total_count"] += len(records)
+
+        print(f"  {pref_name}（{pref_slug}）：{len(records)}件 → {output_path}")
+
+    manifest_path = os.path.join(OUTPUT_DIR, "data_manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+    # 👑 重要：CF Workerのassets配信は wrangler.json の "directory": "./dist"
+    # 配下のファイルのみを対象とするため、index.html も必ずdist/にコピーする。
+    static_files_to_copy = ["index.html"]
+    for filename in static_files_to_copy:
+        if os.path.exists(filename):
+            shutil.copy(filename, os.path.join(OUTPUT_DIR, filename))
+            print(f"  静的ファイルをコピー：{filename} → {OUTPUT_DIR}/{filename}")
+        else:
+            print(f"  ⚠️ {filename} が見つからないため、コピーをスキップしました")
+
+    print("==========================================")
+    print(f"✅ ビルド完了：合計{manifest['total_count']}件")
+    print(f"マニフェスト：{manifest_path}")
+    print("==========================================")
+
+
+# ------------------------------------------------------------
+# 11. 実行
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    main()
