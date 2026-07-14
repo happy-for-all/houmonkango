@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ============================================================
-     🌿 訪問看護ナビ（関西圏） index.html
+     🌿 訪問看護ナビ（全国版） index.html
      ・noindexは公開直前に必ず削除してください
      ・canonicalは仮のサブドメインURLです（houmonkango.pray-power-is-god-and-cocoro.com）
      ============================================================ -->
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://houmonkango.pray-power-is-god-and-cocoro.com/">
 
-<title>訪問看護ナビ（関西版）｜現在地から探せる訪問看護ステーション検索</title>
-<meta name="description" content="大阪・京都・兵庫・奈良・滋賀・和歌山の訪問看護ステーションを、現在地から近い順に検索。精神科対応・医療的ケア対応・小児対応・リハビリ特化などの絞り込みも可能です。">
+<title>訪問看護ナビ｜現在地から探せる訪問看護ステーション検索（全国対応）</title>
+<meta name="description" content="全国の訪問看護ステーションを、現在地から近い順に検索。精神科対応・医療的ケア対応・小児対応・リハビリ特化などの詳細な絞り込みは、現在関西2府4県のみ対応しています。">
 
 <!-- 👑 ファビコン：画像は後日差し替え用に、コードだけ先に設置しています -->
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -29,9 +29,9 @@
 :root{
   --color-bg: #FAF8F3;
   --color-surface: #FFFFFF;
-  --color-primary: #3D6B5C;      /* 深めのセージグリーン（訪問看護・信頼感） */
+  --color-primary: #3D6B5C;
   --color-primary-dark: #2A4C41;
-  --color-accent: #E0932E;       /* 温かみのあるアンバー（CTA・電話ボタン） */
+  --color-accent: #E0932E;
   --color-text: #2B2B28;
   --color-text-muted: #6E6B63;
   --color-border: #E7E2D6;
@@ -92,6 +92,7 @@ a{ color: var(--color-primary-dark); }
   color: #6B5623;
 }
 .disclaimer-banner strong{ color: #8A5A0E; }
+#specialtyNotice{ margin-top: 8px; font-weight: 700; }
 
 /* ============================================================
    3. 検索エリア
@@ -378,7 +379,6 @@ a{ color: var(--color-primary-dark); }
 
 /* ============================================================
    7. 候補リスト・電話ステータス・比較・紹介履歴・印刷
-   （New・2026-07-15追加）
    ============================================================ */
 .action-btn.candidate{ background:#fff; }
 .action-btn.candidate.added{
@@ -387,7 +387,6 @@ a{ color: var(--color-primary-dark); }
   color:#fff;
 }
 
-/* --- 右下の固定ボタン（FAB） --- */
 .candidate-fab{
   position: fixed;
   right: 18px;
@@ -405,7 +404,6 @@ a{ color: var(--color-primary-dark); }
   cursor:pointer;
 }
 
-/* --- ドロワー（オーバーレイ） --- */
 .drawer-overlay{
   position: fixed;
   inset: 0;
@@ -556,7 +554,6 @@ a{ color: var(--color-primary-dark); }
   margin-bottom: 14px;
 }
 
-/* --- 印刷専用エリア（通常は非表示、印刷時のみ表示） --- */
 #printArea{ display:none; }
 
 @media print{
@@ -576,8 +573,8 @@ a{ color: var(--color-primary-dark); }
      ヘッダー
      ============================================================ -->
 <header class="site-header">
-  <h1>🌿 訪問看護ナビ（関西版）</h1>
-  <p class="tagline">大阪・京都・兵庫・奈良・滋賀・和歌山の訪問看護ステーションを、現在地から近い順に検索</p>
+  <h1>🌿 訪問看護ナビ</h1>
+  <p class="tagline">全国の訪問看護ステーションを、現在地から近い順に検索</p>
 </header>
 
 <div class="disclaimer-banner">
@@ -585,6 +582,7 @@ a{ color: var(--color-primary-dark); }
   行政の公開データには「精神科対応」「医療的ケア対応」等の特化情報の記載がありませんでした。
   そのため、AIが各事業所の公式ホームページを自動調査し、キーワードから推定して表示しています。
   <strong>正確性を保証するものではありません。</strong>ご利用の際は、必ず電話や公式サイトでご確認ください。
+  <p id="specialtyNotice"></p>
 </div>
 
 <!-- ============================================================
@@ -600,18 +598,59 @@ a{ color: var(--color-primary-dark); }
   <div class="field-row">
     <select id="prefSelect">
       <option value="">都道府県を選択（現在地が使えない場合）</option>
-      <option value="osaka">大阪府</option>
+      <option value="hokkaido">北海道</option>
+      <option value="aomori">青森県</option>
+      <option value="iwate">岩手県</option>
+      <option value="miyagi">宮城県</option>
+      <option value="akita">秋田県</option>
+      <option value="yamagata">山形県</option>
+      <option value="fukushima">福島県</option>
+      <option value="ibaraki">茨城県</option>
+      <option value="tochigi">栃木県</option>
+      <option value="gunma">群馬県</option>
+      <option value="saitama">埼玉県</option>
+      <option value="chiba">千葉県</option>
+      <option value="tokyo">東京都</option>
+      <option value="kanagawa">神奈川県</option>
+      <option value="niigata">新潟県</option>
+      <option value="toyama">富山県</option>
+      <option value="ishikawa">石川県</option>
+      <option value="fukui">福井県</option>
+      <option value="yamanashi">山梨県</option>
+      <option value="nagano">長野県</option>
+      <option value="gifu">岐阜県</option>
+      <option value="shizuoka">静岡県</option>
+      <option value="aichi">愛知県</option>
+      <option value="mie">三重県</option>
+      <option value="shiga">滋賀県</option>
       <option value="kyoto">京都府</option>
+      <option value="osaka">大阪府</option>
       <option value="hyogo">兵庫県</option>
       <option value="nara">奈良県</option>
-      <option value="shiga">滋賀県</option>
       <option value="wakayama">和歌山県</option>
+      <option value="tottori">鳥取県</option>
+      <option value="shimane">島根県</option>
+      <option value="okayama">岡山県</option>
+      <option value="hiroshima">広島県</option>
+      <option value="yamaguchi">山口県</option>
+      <option value="tokushima">徳島県</option>
+      <option value="kagawa">香川県</option>
+      <option value="ehime">愛媛県</option>
+      <option value="kochi">高知県</option>
+      <option value="fukuoka">福岡県</option>
+      <option value="saga">佐賀県</option>
+      <option value="nagasaki">長崎県</option>
+      <option value="kumamoto">熊本県</option>
+      <option value="oita">大分県</option>
+      <option value="miyazaki">宮崎県</option>
+      <option value="kagoshima">鹿児島県</option>
+      <option value="okinawa">沖縄県</option>
     </select>
     <input type="text" id="keywordInput" placeholder="事業所名・住所・キーワードで検索">
   </div>
 
   <div class="filter-group">
-    <div class="filter-label">対応内容で絞る（AIによる推定・要確認）</div>
+    <div class="filter-label">対応内容で絞る（AIによる推定・要確認・現在は関西2府4県のみ）</div>
     <div class="chip-list" id="tagFilters">
       <label class="chip"><input type="checkbox" value="mental"><span>精神科対応</span></label>
       <label class="chip"><input type="checkbox" value="medical_care"><span>医療的ケア対応</span></label>
@@ -643,7 +682,7 @@ a{ color: var(--color-primary-dark); }
      ============================================================ -->
 <div class="results-wrap">
   <div class="results-meta">
-    <span id="resultsCount">データを読み込み中です…</span>
+    <span id="resultsCount">現在地を取得するか、都道府県を選んでください。</span>
     <span id="sortMode"></span>
   </div>
   <div id="resultsList"></div>
@@ -690,11 +729,11 @@ a{ color: var(--color-primary-dark); }
 
 <footer class="site-footer">
   <p id="footerManifestInfo">データ読み込み中…</p>
-  <p>データ出典：厚生労働省「介護サービス情報公表システム」オープンデータ<br>特化情報：AIによるホームページ調査（2026年7月時点・要確認）</p>
+  <p>データ出典：厚生労働省「介護サービス情報公表システム」オープンデータ<br>特化情報：AIによるホームページ調査（2026年7月時点・関西2府4県のみ・要確認）</p>
 </footer>
 
 <!-- ============================================================
-     候補リストFAB・ドロワー（New・2026-07-15追加）
+     候補リストFAB・ドロワー
      ============================================================ -->
 <button id="candidateFab" class="candidate-fab">📋 候補リスト（<span id="fabCount">0</span>）</button>
 
@@ -722,7 +761,7 @@ a{ color: var(--color-primary-dark); }
 </div>
 
 <!-- ============================================================
-     印刷専用エリア（画面には表示されず、印刷時のみ使用）
+     印刷専用エリア
      ============================================================ -->
 <div id="printArea"></div>
 
@@ -735,8 +774,7 @@ a{ color: var(--color-primary-dark); }
   // ------------------------------------------------------------
   // 1. 設定
   // ------------------------------------------------------------
-  const PREFECTURES = ["osaka","kyoto","hyogo","nara","shiga","wakayama"];
-  const PAGE_SIZE = 20; // 一度に表示する件数（描画負荷を抑えるため）
+  const PAGE_SIZE = 20;
 
   const TAG_LABELS = {
     mental: "精神科対応",
@@ -744,38 +782,71 @@ a{ color: var(--color-primary-dark); }
     pediatric: "小児対応",
     rehabilitation: "リハビリ特化",
   };
-  // カードの縁取り色を決める優先順位（複数該当時、最初に見つかったものを採用）
   const TAG_PRIORITY = ["mental", "medical_care", "pediatric", "rehabilitation"];
+
+  // 👑 New（2026-07-15追加）：全国47都道府県対応。
+  // 都道府県ごとの遅延読み込みで「現在地から近い都道府県」を判定するための
+  // おおよその中心座標（県庁所在地付近）。
+  const PREFECTURE_CENTROIDS = {
+    hokkaido: [43.06, 141.35], aomori: [40.82, 140.74], iwate: [39.70, 141.15],
+    miyagi: [38.27, 140.87], akita: [39.72, 140.10], yamagata: [38.24, 140.36],
+    fukushima: [37.75, 140.47], ibaraki: [36.34, 140.45], tochigi: [36.57, 139.88],
+    gunma: [36.39, 139.06], saitama: [35.86, 139.65], chiba: [35.60, 140.12],
+    tokyo: [35.69, 139.69], kanagawa: [35.45, 139.64], niigata: [37.90, 139.02],
+    toyama: [36.70, 137.21], ishikawa: [36.59, 136.63], fukui: [36.07, 136.22],
+    yamanashi: [35.66, 138.57], nagano: [36.65, 138.18], gifu: [35.39, 136.72],
+    shizuoka: [34.98, 138.38], aichi: [35.18, 136.91], mie: [34.73, 136.51],
+    shiga: [35.00, 135.87], kyoto: [35.02, 135.76], osaka: [34.69, 135.52],
+    hyogo: [34.69, 135.18], nara: [34.69, 135.83], wakayama: [34.23, 135.17],
+    tottori: [35.50, 134.24], shimane: [35.47, 133.05], okayama: [34.66, 133.93],
+    hiroshima: [34.40, 132.46], yamaguchi: [34.19, 131.47], tokushima: [34.07, 134.56],
+    kagawa: [34.34, 134.04], ehime: [33.84, 132.77], kochi: [33.56, 133.53],
+    fukuoka: [33.61, 130.42], saga: [33.25, 130.30], nagasaki: [32.74, 129.87],
+    kumamoto: [32.79, 130.74], oita: [33.24, 131.61], miyazaki: [31.91, 131.42],
+    kagoshima: [31.56, 130.56], okinawa: [26.21, 127.68],
+  };
+
+  const PREFECTURE_LABELS = {
+    hokkaido:"北海道", aomori:"青森県", iwate:"岩手県", miyagi:"宮城県", akita:"秋田県",
+    yamagata:"山形県", fukushima:"福島県", ibaraki:"茨城県", tochigi:"栃木県", gunma:"群馬県",
+    saitama:"埼玉県", chiba:"千葉県", tokyo:"東京都", kanagawa:"神奈川県", niigata:"新潟県",
+    toyama:"富山県", ishikawa:"石川県", fukui:"福井県", yamanashi:"山梨県", nagano:"長野県",
+    gifu:"岐阜県", shizuoka:"静岡県", aichi:"愛知県", mie:"三重県", shiga:"滋賀県",
+    kyoto:"京都府", osaka:"大阪府", hyogo:"兵庫県", nara:"奈良県", wakayama:"和歌山県",
+    tottori:"鳥取県", shimane:"島根県", okayama:"岡山県", hiroshima:"広島県", yamaguchi:"山口県",
+    tokushima:"徳島県", kagawa:"香川県", ehime:"愛媛県", kochi:"高知県", fukuoka:"福岡県",
+    saga:"佐賀県", nagasaki:"長崎県", kumamoto:"熊本県", oita:"大分県", miyazaki:"宮崎県",
+    kagoshima:"鹿児島県", okinawa:"沖縄県",
+  };
 
   // ------------------------------------------------------------
   // 2. 状態管理
   // ------------------------------------------------------------
-  let allStations = [];       // 読み込んだ全事業所データ
-  let userLocation = null;    // { lat, lon }
-  let filteredSorted = [];    // フィルター・ソート後の配列
-  let renderedCount = 0;      // 現在表示済みの件数
+  let allStations = [];       // 現在読み込まれている事業所データ（都道府県ごとの遅延読み込み）
+  let userLocation = null;
+  let filteredSorted = [];
+  let renderedCount = 0;
+  let manifestData = null;
+
+  // 👑 New：読み込み済みの都道府県データをキャッシュし、同じ都道府県への
+  // 再アクセス時に無駄なfetchをしないようにする
+  const prefectureDataCache = {};
 
   // ------------------------------------------------------------
-  // 3. データ読み込み
+  // 3. データ読み込み（都道府県ごとの遅延読み込み方式）
+  //    👑 修正済み（2026-07-15）：全国47都道府県対応にあたり、以前は
+  //    全都道府県のJSONを一括読み込みしていたが、データ量が大きくなり
+  //    すぎるため、必要な都道府県の分だけを読み込む方式に変更した。
   // ------------------------------------------------------------
-  async function loadAllData(){
+  async function loadManifest(){
     try{
-      const manifestRes = await fetch("data_manifest.json");
-      const manifest = await manifestRes.json();
+      const res = await fetch("data_manifest.json");
+      manifestData = await res.json();
 
       document.getElementById("footerManifestInfo").textContent =
-        `${manifest.csv_source}／関西6府県 合計${manifest.total_count}件を掲載`;
+        `${manifestData.csv_source}／全国${manifestData.total_count}件を掲載`;
 
-      const fetches = PREFECTURES.map(pref =>
-        fetch(`data_${pref}.json`).then(r => r.json())
-      );
-      const results = await Promise.all(fetches);
-      allStations = results.flat();
-
-      document.getElementById("resultsCount").textContent =
-        `${allStations.length}件のデータを読み込みました。検索してください。`;
-
-      applyFiltersAndRender();
+      renderSpecialtyNotice();
     }catch(err){
       console.error(err);
       document.getElementById("resultsList").innerHTML =
@@ -783,11 +854,38 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
+  function renderSpecialtyNotice(){
+    if (!manifestData || !manifestData.specialty_researched_prefectures) return;
+    const names = manifestData.specialty_researched_prefectures
+      .map(slug => PREFECTURE_LABELS[slug] || slug).join("・");
+    const el = document.getElementById("specialtyNotice");
+    if (el){
+      el.textContent =
+        `※「精神科対応」等の特化情報は、現在${names}のみ調査済みです。それ以外の地域は基本情報（住所・電話・地図等）のみの表示となります。`;
+    }
+  }
+
+  async function loadPrefectureData(slug){
+    if (prefectureDataCache[slug]) return prefectureDataCache[slug];
+    const res = await fetch(`data_${slug}.json`);
+    const data = await res.json();
+    prefectureDataCache[slug] = data;
+    return data;
+  }
+
+  function findNearestPrefectureSlugs(loc, count){
+    const distances = Object.entries(PREFECTURE_CENTROIDS).map(([slug, [lat, lon]]) => ({
+      slug, dist: haversineKm(loc.lat, loc.lon, lat, lon)
+    }));
+    distances.sort((a, b) => a.dist - b.dist);
+    return distances.slice(0, count).map(d => d.slug);
+  }
+
   // ------------------------------------------------------------
   // 4. 距離計算（Haversine公式）
   // ------------------------------------------------------------
   function haversineKm(lat1, lon1, lat2, lon2){
-    const R = 6371; // 地球の半径(km)
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
@@ -800,6 +898,8 @@ a{ color: var(--color-primary-dark); }
 
   // ------------------------------------------------------------
   // 5. 現在地取得
+  //    👑 修正済み（2026-07-15）：現在地取得後、全都道府県ではなく
+  //    「近い順に上位3都道府県」のデータだけを読み込むように変更。
   // ------------------------------------------------------------
   document.getElementById("btnLocate").addEventListener("click", () => {
     const statusEl = document.getElementById("locateStatus");
@@ -812,11 +912,21 @@ a{ color: var(--color-primary-dark); }
     statusEl.textContent = "現在地を取得しています…";
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        statusEl.textContent = "現在地を取得しました。近い順に表示します。";
+        statusEl.textContent = "近くのデータを読み込んでいます…";
         document.getElementById("prefSelect").value = "";
-        applyFiltersAndRender();
+
+        const nearestSlugs = findNearestPrefectureSlugs(userLocation, 3);
+        try{
+          const dataSets = await Promise.all(nearestSlugs.map(loadPrefectureData));
+          allStations = dataSets.flat();
+          statusEl.textContent = "現在地を取得しました。近い順に表示します。";
+          applyFiltersAndRender();
+        }catch(e){
+          console.error(e);
+          statusEl.textContent = "データの読み込みに失敗しました。時間をおいて再度お試しください。";
+        }
       },
       (err) => {
         console.warn(err);
@@ -828,12 +938,32 @@ a{ color: var(--color-primary-dark); }
 
   // ------------------------------------------------------------
   // 6. フィルター・検索条件の変更を監視
+  //    👑 修正済み（2026-07-15）：都道府県選択時、その都道府県のデータ
+  //    だけを遅延読み込みするように変更。
   // ------------------------------------------------------------
-  document.getElementById("prefSelect").addEventListener("change", () => {
-    userLocation = null; // 都道府県を手動選択したら現在地ソートは解除する
+  document.getElementById("prefSelect").addEventListener("change", async () => {
+    const slug = document.getElementById("prefSelect").value;
+    userLocation = null;
     document.getElementById("locateStatus").textContent = "";
-    applyFiltersAndRender();
+
+    if (!slug){
+      allStations = [];
+      document.getElementById("resultsList").innerHTML = "";
+      document.getElementById("resultsCount").textContent = "都道府県を選ぶか、現在地から探してください。";
+      return;
+    }
+
+    document.getElementById("resultsCount").textContent = "データを読み込んでいます…";
+    try{
+      allStations = await loadPrefectureData(slug);
+      applyFiltersAndRender();
+    }catch(e){
+      console.error(e);
+      document.getElementById("resultsList").innerHTML =
+        `<div class="empty-state">データの読み込みに失敗しました。時間をおいて再度お試しください。</div>`;
+    }
   });
+
   document.getElementById("keywordInput").addEventListener("input", debounce(applyFiltersAndRender, 250));
   document.querySelectorAll('#tagFilters input, #dayFilters input, #nightFilter')
     .forEach(el => el.addEventListener("change", (e) => {
@@ -857,16 +987,11 @@ a{ color: var(--color-primary-dark); }
     if (allStations.length === 0) return;
 
     const keyword = document.getElementById("keywordInput").value.trim();
-    const selectedPref = document.getElementById("prefSelect").value;
     const checkedTags = Array.from(document.querySelectorAll('#tagFilters input:checked')).map(i => i.value);
     const checkedDays = Array.from(document.querySelectorAll('#dayFilters input:checked')).map(i => i.value);
     const nightOnly = document.getElementById("nightFilter").checked;
 
     let list = allStations;
-
-    if (selectedPref){
-      list = list.filter(s => s.prefecture === prefLabelOf(selectedPref));
-    }
 
     if (keyword){
       list = list.filter(s =>
@@ -890,7 +1015,6 @@ a{ color: var(--color-primary-dark); }
       list = list.filter(s => s.night_emergency_hint);
     }
 
-    // 距離計算・ソート
     if (userLocation){
       list = list.map(s => ({
         ...s,
@@ -903,7 +1027,7 @@ a{ color: var(--color-primary-dark); }
       });
       document.getElementById("sortMode").textContent = "現在地から近い順に表示中";
     } else {
-      document.getElementById("sortMode").textContent = selectedPref ? "" : "都道府県または現在地を選んでください";
+      document.getElementById("sortMode").textContent = "";
     }
 
     filteredSorted = list;
@@ -911,11 +1035,6 @@ a{ color: var(--color-primary-dark); }
     document.getElementById("resultsList").innerHTML = "";
     document.getElementById("resultsCount").textContent = `${filteredSorted.length}件が該当しました`;
     renderNextPage();
-  }
-
-  function prefLabelOf(slug){
-    const map = { osaka:"大阪府", kyoto:"京都府", hyogo:"兵庫県", nara:"奈良県", shiga:"滋賀県", wakayama:"和歌山県" };
-    return map[slug];
   }
 
   // ------------------------------------------------------------
@@ -1015,12 +1134,14 @@ a{ color: var(--color-primary-dark); }
 
   // ------------------------------------------------------------
   // 9. 初期化
+  //    👑 修正済み（2026-07-15）：以前は loadAllData() で全都道府県を
+  //    一括読み込みしていたが、loadManifest() のみ呼び、実際の事業所
+  //    データは現在地取得・都道府県選択のタイミングで遅延読み込みする。
   // ------------------------------------------------------------
-  loadAllData();
+  loadManifest();
 
   // ============================================================
   // 10. 候補リスト・電話ステータス・比較・紹介履歴・印刷
-  //     （New・2026-07-15追加）
   //     全てlocalStorageのみで完結し、サーバーへは一切送信しない。
   // ============================================================
   const CANDIDATES_KEY = "houmonkango_candidates";
@@ -1033,7 +1154,6 @@ a{ color: var(--color-primary-dark); }
     full: "🔴 満床",
   };
 
-  // --- localStorage読み書き（壊れたデータが入っていても落ちないようにする） ---
   function loadFromStorage(key){
     try{
       const raw = localStorage.getItem(key);
@@ -1051,13 +1171,12 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
-  let candidates = loadFromStorage(CANDIDATES_KEY);      // [{jigyosho_no, name, address, tel, url, specialty_tags, status, addedAt}]
-  let referralHistory = loadFromStorage(HISTORY_KEY);    // [{jigyosho_no, name, clientLabel, referredAt}]
+  let candidates = loadFromStorage(CANDIDATES_KEY);
+  let referralHistory = loadFromStorage(HISTORY_KEY);
 
   function saveCandidates(){ saveToStorage(CANDIDATES_KEY, candidates); }
   function saveHistory(){ saveToStorage(HISTORY_KEY, referralHistory); }
 
-  // --- 候補の追加・削除 ---
   function toggleCandidate(jigyoshoNo){
     const idx = candidates.findIndex(c => c.jigyosho_no === jigyoshoNo);
     if (idx >= 0){
@@ -1070,6 +1189,7 @@ a{ color: var(--color-primary-dark); }
         name: station.name,
         address: station.address,
         tel: station.tel,
+        tel_clean: station.tel_clean,
         url: station.url,
         specialty_tags: station.specialty_tags,
         available_days: station.available_days,
@@ -1080,13 +1200,11 @@ a{ color: var(--color-primary-dark); }
     }
     saveCandidates();
     updateFabCount();
-    renderNextPage_refreshVisible(); // カード側の「候補に追加済み」表示を更新するため再描画
+    refreshCandidateButtons();
     renderDrawerViews();
   }
 
-  // 候補ボタンの見た目だけを更新するための軽い再描画
-  // （フィルターやスクロール位置を壊さないよう、全体再描画ではなくボタンのみ更新する）
-  function renderNextPage_refreshVisible(){
+  function refreshCandidateButtons(){
     document.querySelectorAll(".action-btn.candidate").forEach(btn => {
       const no = btn.getAttribute("data-jigyosho-no");
       const added = candidates.some(c => c.jigyosho_no === no);
@@ -1099,7 +1217,7 @@ a{ color: var(--color-primary-dark); }
     candidates = candidates.filter(c => c.jigyosho_no !== jigyoshoNo);
     saveCandidates();
     updateFabCount();
-    renderNextPage_refreshVisible();
+    refreshCandidateButtons();
     renderDrawerViews();
   }
 
@@ -1112,7 +1230,6 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
-  // --- 紹介履歴 ---
   function markAsReferred(jigyoshoNo){
     const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
     if (!c) return;
@@ -1133,12 +1250,10 @@ a{ color: var(--color-primary-dark); }
     renderDrawerViews();
   }
 
-  // --- FABの件数表示 ---
   function updateFabCount(){
     document.getElementById("fabCount").textContent = candidates.length;
   }
 
-  // --- ドロワーの開閉・タブ切り替え ---
   const drawerOverlay = document.getElementById("drawerOverlay");
   document.getElementById("candidateFab").addEventListener("click", () => {
     drawerOverlay.classList.remove("hidden");
@@ -1161,7 +1276,6 @@ a{ color: var(--color-primary-dark); }
     });
   });
 
-  // --- ドロワーの中身を描画 ---
   function renderDrawerViews(){
     renderCandidateListView();
     renderCompareView();
@@ -1249,7 +1363,6 @@ a{ color: var(--color-primary-dark); }
     `).join("");
   }
 
-  // --- 印刷 ---
   document.getElementById("btnPrint").addEventListener("click", () => {
     const printArea = document.getElementById("printArea");
 
@@ -1282,7 +1395,6 @@ a{ color: var(--color-primary-dark); }
     window.print();
   });
 
-  // --- inline onclick から呼べるように、必要な関数だけを外部公開する ---
   window.__houmonkango = {
     toggleCandidate,
     removeCandidate,
