@@ -930,6 +930,10 @@ a{ color: var(--color-primary-dark); }
       },
       (err) => {
         console.warn(err);
+        // 👑 修正済み（2026-07-15）：以前は失敗時にuserLocationが古い値のまま
+        // 残ってしまい、次の検索が古い位置情報でソートされ続ける不具合があった
+        // ため、失敗時は明示的にnullへリセットする。
+        userLocation = null;
         statusEl.textContent = "現在地を取得できませんでした。都道府県を選んで検索してください。";
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -1003,7 +1007,7 @@ a{ color: var(--color-primary-dark); }
 
     if (checkedTags.length > 0){
       list = list.filter(s =>
-        checkedTags.every(tag => s.specialty_tags[tag] === "specialized" || s.specialty_tags[tag] === "mentioned")
+        checkedTags.some(tag => s.specialty_tags[tag] === "specialized" || s.specialty_tags[tag] === "mentioned")
       );
     }
 
@@ -1033,7 +1037,20 @@ a{ color: var(--color-primary-dark); }
     filteredSorted = list;
     renderedCount = 0;
     document.getElementById("resultsList").innerHTML = "";
-    document.getElementById("resultsCount").textContent = `${filteredSorted.length}件が該当しました`;
+
+    // 👑 修正済み（2026-07-15）：未調査の地域でタグ絞り込みをして0件になった際、
+    // 「単に存在しない」のか「まだ調査していないだけ」なのかが伝わらなかったため、
+    // 理由が分かるメッセージに出し分ける。
+    const isUnresearchedArea = checkedTags.length > 0 && filteredSorted.length === 0 &&
+      allStations.length > 0 &&
+      allStations.every(s => Object.values(s.specialty_tags).every(v => v === null));
+
+    if (isUnresearchedArea){
+      document.getElementById("resultsCount").textContent =
+        "この地域はまだ特化情報の調査が済んでいないため、該当なしと表示されています。";
+    } else {
+      document.getElementById("resultsCount").textContent = `${filteredSorted.length}件が該当しました`;
+    }
     renderNextPage();
   }
 
