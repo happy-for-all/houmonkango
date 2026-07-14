@@ -375,6 +375,199 @@ a{ color: var(--color-primary-dark); }
   .card-top{ flex-direction: column; }
   .card-distance{ order:-1; }
 }
+
+/* ============================================================
+   7. 候補リスト・電話ステータス・比較・紹介履歴・印刷
+   （New・2026-07-15追加）
+   ============================================================ */
+.action-btn.candidate{ background:#fff; }
+.action-btn.candidate.added{
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color:#fff;
+}
+
+/* --- 右下の固定ボタン（FAB） --- */
+.candidate-fab{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 500;
+  background: var(--color-primary-dark);
+  color:#fff;
+  border:none;
+  border-radius: var(--radius-pill);
+  padding: 14px 22px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  cursor:pointer;
+}
+
+/* --- ドロワー（オーバーレイ） --- */
+.drawer-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(20,20,18,0.45);
+  z-index: 900;
+  display:flex;
+  justify-content:flex-end;
+}
+.drawer-overlay.hidden{ display:none; }
+
+.drawer-panel{
+  width: min(560px, 100%);
+  height: 100%;
+  background: var(--color-bg);
+  overflow-y:auto;
+  padding: 18px;
+}
+
+.drawer-header{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  margin-bottom: 12px;
+}
+.drawer-header h2{
+  font-family: var(--font-display);
+  color: var(--color-primary-dark);
+  font-size: 18px;
+  margin:0;
+}
+.drawer-close{
+  background:none;
+  border:none;
+  font-size: 22px;
+  cursor:pointer;
+  color: var(--color-text-muted);
+}
+
+.drawer-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom: 14px;
+}
+.drawer-tab{
+  flex:1;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background:#fff;
+  font-size: 13px;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+}
+.drawer-tab.active{
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color:#fff;
+}
+
+.drawer-view{ display:none; }
+.drawer-view.active{ display:block; }
+
+.candidate-row{
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.candidate-row .cand-name{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.candidate-row .cand-address{
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.status-btns{
+  display:flex;
+  gap:6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.status-btn{
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background:#fff;
+  cursor:pointer;
+}
+.status-btn.active-full{ background:#F8DADA; border-color:#D96A63; }
+.status-btn.active-maybe{ background:#FCEFCB; border-color:#E0B23C; }
+.status-btn.active-available{ background:#D9EFE2; border-color:#4E9B6E; }
+.status-btn.active-unknown{ background:#EDEBE3; border-color:#B9B4A4; }
+
+.candidate-row-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap: wrap;
+}
+.mini-btn{
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background:#fff;
+  cursor:pointer;
+}
+.mini-btn.danger{ color:#9A3730; border-color:#D98A84; }
+.mini-btn.referred{ background: var(--color-accent); border-color: var(--color-accent); color:#fff; }
+
+.compare-table-wrap{ overflow-x:auto; }
+.compare-table{
+  width:100%;
+  border-collapse: collapse;
+  background:#fff;
+  font-size: 13px;
+}
+.compare-table th, .compare-table td{
+  border: 1px solid var(--color-border);
+  padding: 8px 10px;
+  text-align:center;
+}
+.compare-table th{ background:#F1EFE7; }
+.compare-table td.compare-label{ text-align:left; font-weight:700; background:#FAF8F3; white-space:nowrap; }
+
+.history-row{
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.drawer-actions-row{
+  display:flex;
+  gap:8px;
+  margin-bottom: 14px;
+}
+
+/* --- 印刷専用エリア（通常は非表示、印刷時のみ表示） --- */
+#printArea{ display:none; }
+
+@media print{
+  body *{ visibility: hidden; }
+  #printArea, #printArea *{ visibility: visible; }
+  #printArea{
+    display:block;
+    position: absolute;
+    left:0; top:0; width:100%;
+  }
+}
 </style>
 </head>
 <body>
@@ -499,6 +692,39 @@ a{ color: var(--color-primary-dark); }
   <p id="footerManifestInfo">データ読み込み中…</p>
   <p>データ出典：厚生労働省「介護サービス情報公表システム」オープンデータ<br>特化情報：AIによるホームページ調査（2026年7月時点・要確認）</p>
 </footer>
+
+<!-- ============================================================
+     候補リストFAB・ドロワー（New・2026-07-15追加）
+     ============================================================ -->
+<button id="candidateFab" class="candidate-fab">📋 候補リスト（<span id="fabCount">0</span>）</button>
+
+<div id="drawerOverlay" class="drawer-overlay hidden">
+  <div class="drawer-panel">
+    <div class="drawer-header">
+      <h2>候補リスト・比較・紹介履歴</h2>
+      <button id="drawerClose" class="drawer-close">✕</button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="drawer-tab active" data-tab="list">候補リスト</button>
+      <button class="drawer-tab" data-tab="compare">比較</button>
+      <button class="drawer-tab" data-tab="history">紹介履歴</button>
+    </div>
+
+    <div class="drawer-actions-row">
+      <button id="btnPrint" class="btn btn-outline">🖨 このリストを印刷する</button>
+    </div>
+
+    <div id="viewList" class="drawer-view active"></div>
+    <div id="viewCompare" class="drawer-view"></div>
+    <div id="viewHistory" class="drawer-view"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     印刷専用エリア（画面には表示されず、印刷時のみ使用）
+     ============================================================ -->
+<div id="printArea"></div>
 
 <!-- ============================================================
      スクリプト本体
@@ -744,6 +970,12 @@ a{ color: var(--color-primary-dark); }
     const remarksHtml = s.remarks
       ? `<div class="card-remarks">📝 特記事項：${escapeHtml(s.remarks)}</div>` : "";
 
+    const isAdded = candidates.some(c => c.jigyosho_no === s.jigyosho_no);
+    const candidateBtnHtml =
+      `<button class="action-btn candidate${isAdded ? " added" : ""}" data-jigyosho-no="${escapeAttr(s.jigyosho_no)}" onclick="window.__houmonkango.toggleCandidate('${escapeAttr(s.jigyosho_no)}')">
+        ${isAdded ? "✓ 候補に追加済み" : "📋 候補に追加"}
+      </button>`;
+
     return `
       <div class="station-card ${cardClass}">
         <div class="card-top">
@@ -757,6 +989,7 @@ a{ color: var(--color-primary-dark); }
           ${telHtml}
           <a class="action-btn map" href="${mapUrl}" target="_blank" rel="noopener">🗺 ルート案内</a>
           ${urlHtml}
+          ${candidateBtnHtml}
         </div>
         ${remarksHtml}
       </div>
@@ -784,6 +1017,281 @@ a{ color: var(--color-primary-dark); }
   // 9. 初期化
   // ------------------------------------------------------------
   loadAllData();
+
+  // ============================================================
+  // 10. 候補リスト・電話ステータス・比較・紹介履歴・印刷
+  //     （New・2026-07-15追加）
+  //     全てlocalStorageのみで完結し、サーバーへは一切送信しない。
+  // ============================================================
+  const CANDIDATES_KEY = "houmonkango_candidates";
+  const HISTORY_KEY = "houmonkango_referral_history";
+
+  const STATUS_LABELS = {
+    unknown: "⚪ 未確認",
+    available: "🟢 空きあり",
+    maybe: "🟡 応相談",
+    full: "🔴 満床",
+  };
+
+  // --- localStorage読み書き（壊れたデータが入っていても落ちないようにする） ---
+  function loadFromStorage(key){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      console.warn(`localStorageの読み込みに失敗しました（${key}）`, e);
+      return [];
+    }
+  }
+  function saveToStorage(key, value){
+    try{
+      localStorage.setItem(key, JSON.stringify(value));
+    }catch(e){
+      console.warn(`localStorageの保存に失敗しました（${key}）`, e);
+    }
+  }
+
+  let candidates = loadFromStorage(CANDIDATES_KEY);      // [{jigyosho_no, name, address, tel, url, specialty_tags, status, addedAt}]
+  let referralHistory = loadFromStorage(HISTORY_KEY);    // [{jigyosho_no, name, clientLabel, referredAt}]
+
+  function saveCandidates(){ saveToStorage(CANDIDATES_KEY, candidates); }
+  function saveHistory(){ saveToStorage(HISTORY_KEY, referralHistory); }
+
+  // --- 候補の追加・削除 ---
+  function toggleCandidate(jigyoshoNo){
+    const idx = candidates.findIndex(c => c.jigyosho_no === jigyoshoNo);
+    if (idx >= 0){
+      candidates.splice(idx, 1);
+    } else {
+      const station = allStations.find(s => s.jigyosho_no === jigyoshoNo);
+      if (!station) return;
+      candidates.push({
+        jigyosho_no: station.jigyosho_no,
+        name: station.name,
+        address: station.address,
+        tel: station.tel,
+        url: station.url,
+        specialty_tags: station.specialty_tags,
+        available_days: station.available_days,
+        night_emergency_hint: station.night_emergency_hint,
+        status: "unknown",
+        addedAt: new Date().toISOString(),
+      });
+    }
+    saveCandidates();
+    updateFabCount();
+    renderNextPage_refreshVisible(); // カード側の「候補に追加済み」表示を更新するため再描画
+    renderDrawerViews();
+  }
+
+  // 候補ボタンの見た目だけを更新するための軽い再描画
+  // （フィルターやスクロール位置を壊さないよう、全体再描画ではなくボタンのみ更新する）
+  function renderNextPage_refreshVisible(){
+    document.querySelectorAll(".action-btn.candidate").forEach(btn => {
+      const no = btn.getAttribute("data-jigyosho-no");
+      const added = candidates.some(c => c.jigyosho_no === no);
+      btn.classList.toggle("added", added);
+      btn.textContent = added ? "✓ 候補に追加済み" : "📋 候補に追加";
+    });
+  }
+
+  function removeCandidate(jigyoshoNo){
+    candidates = candidates.filter(c => c.jigyosho_no !== jigyoshoNo);
+    saveCandidates();
+    updateFabCount();
+    renderNextPage_refreshVisible();
+    renderDrawerViews();
+  }
+
+  function setCandidateStatus(jigyoshoNo, status){
+    const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
+    if (c){
+      c.status = status;
+      saveCandidates();
+      renderDrawerViews();
+    }
+  }
+
+  // --- 紹介履歴 ---
+  function markAsReferred(jigyoshoNo){
+    const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
+    if (!c) return;
+    const clientLabel = window.prompt("どなたの候補として紹介しましたか？（任意・例：Aさん）", "") || "";
+    referralHistory.unshift({
+      jigyosho_no: c.jigyosho_no,
+      name: c.name,
+      clientLabel,
+      referredAt: new Date().toLocaleString("ja-JP"),
+    });
+    saveHistory();
+    renderDrawerViews();
+  }
+
+  function removeHistoryEntry(index){
+    referralHistory.splice(index, 1);
+    saveHistory();
+    renderDrawerViews();
+  }
+
+  // --- FABの件数表示 ---
+  function updateFabCount(){
+    document.getElementById("fabCount").textContent = candidates.length;
+  }
+
+  // --- ドロワーの開閉・タブ切り替え ---
+  const drawerOverlay = document.getElementById("drawerOverlay");
+  document.getElementById("candidateFab").addEventListener("click", () => {
+    drawerOverlay.classList.remove("hidden");
+    renderDrawerViews();
+  });
+  document.getElementById("drawerClose").addEventListener("click", () => {
+    drawerOverlay.classList.add("hidden");
+  });
+  drawerOverlay.addEventListener("click", (e) => {
+    if (e.target === drawerOverlay) drawerOverlay.classList.add("hidden");
+  });
+
+  document.querySelectorAll(".drawer-tab").forEach(tabBtn => {
+    tabBtn.addEventListener("click", () => {
+      document.querySelectorAll(".drawer-tab").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".drawer-view").forEach(v => v.classList.remove("active"));
+      tabBtn.classList.add("active");
+      const tabName = tabBtn.getAttribute("data-tab");
+      document.getElementById(`view${tabName.charAt(0).toUpperCase()}${tabName.slice(1)}`).classList.add("active");
+    });
+  });
+
+  // --- ドロワーの中身を描画 ---
+  function renderDrawerViews(){
+    renderCandidateListView();
+    renderCompareView();
+    renderHistoryView();
+  }
+
+  function renderCandidateListView(){
+    const el = document.getElementById("viewList");
+    if (candidates.length === 0){
+      el.innerHTML = `<div class="empty-state">まだ候補がありません。検索結果の「📋 候補に追加」から追加してください。</div>`;
+      return;
+    }
+    el.innerHTML = candidates.map(c => {
+      const statusBtns = Object.keys(STATUS_LABELS).map(key =>
+        `<button class="status-btn ${c.status === key ? "active-" + key : ""}" onclick="window.__houmonkango.setStatus('${escapeAttr(c.jigyosho_no)}','${key}')">${STATUS_LABELS[key]}</button>`
+      ).join("");
+
+      return `
+        <div class="candidate-row">
+          <div class="cand-name">${escapeHtml(c.name)}</div>
+          <div class="cand-address">📍 ${escapeHtml(c.address)}</div>
+          <div class="status-btns">${statusBtns}</div>
+          <div class="candidate-row-actions">
+            ${c.tel ? `<a class="mini-btn" href="tel:${c.tel_clean || ''}">📞 電話</a>` : ""}
+            <button class="mini-btn referred" onclick="window.__houmonkango.markReferred('${escapeAttr(c.jigyosho_no)}')">✅ 紹介済みにする</button>
+            <button class="mini-btn danger" onclick="window.__houmonkango.removeCandidate('${escapeAttr(c.jigyosho_no)}')">🗑 削除</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderCompareView(){
+    const el = document.getElementById("viewCompare");
+    if (candidates.length === 0){
+      el.innerHTML = `<div class="empty-state">比較するには、まず候補リストに事業所を追加してください。</div>`;
+      return;
+    }
+
+    const rows = [
+      { label: "精神科対応", get: c => tagCell(c, "mental") },
+      { label: "医療的ケア対応", get: c => tagCell(c, "medical_care") },
+      { label: "小児対応", get: c => tagCell(c, "pediatric") },
+      { label: "リハビリ特化", get: c => tagCell(c, "rehabilitation") },
+      { label: "24時間・緊急", get: c => c.night_emergency_hint ? "○" : "-" },
+      { label: "土曜対応", get: c => (c.available_days && c.available_days.saturday) ? "○" : "-" },
+      { label: "日曜対応", get: c => (c.available_days && c.available_days.sunday) ? "○" : "-" },
+      { label: "電話ステータス", get: c => STATUS_LABELS[c.status] || STATUS_LABELS.unknown },
+    ];
+
+    function tagCell(c, key){
+      const v = c.specialty_tags && c.specialty_tags[key];
+      if (v === "specialized") return "◎";
+      if (v === "mentioned") return "○（言及）";
+      return "-";
+    }
+
+    el.innerHTML = `
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr><th>項目</th>${candidates.map(c => `<th>${escapeHtml(c.name)}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `
+              <tr><td class="compare-label">${row.label}</td>${candidates.map(c => `<td>${row.get(c)}</td>`).join("")}</tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderHistoryView(){
+    const el = document.getElementById("viewHistory");
+    if (referralHistory.length === 0){
+      el.innerHTML = `<div class="empty-state">紹介履歴はまだありません。候補リストから「✅ 紹介済みにする」を押すと記録されます。</div>`;
+      return;
+    }
+    el.innerHTML = referralHistory.map((h, idx) => `
+      <div class="history-row">
+        <span>${escapeHtml(h.referredAt)}｜${escapeHtml(h.clientLabel || "（利用者名未記入）")}｜${escapeHtml(h.name)}</span>
+        <button class="mini-btn danger" onclick="window.__houmonkango.removeHistory(${idx})">削除</button>
+      </div>
+    `).join("");
+  }
+
+  // --- 印刷 ---
+  document.getElementById("btnPrint").addEventListener("click", () => {
+    const printArea = document.getElementById("printArea");
+
+    if (candidates.length === 0){
+      alert("候補リストが空です。印刷する前に候補を追加してください。");
+      return;
+    }
+
+    printArea.innerHTML = `
+      <h1 style="font-family:sans-serif;">訪問看護 候補リスト（${new Date().toLocaleDateString("ja-JP")}時点）</h1>
+      ${candidates.map(c => `
+        <div style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
+          <div style="font-weight:bold; font-size:16px;">${escapeHtml(c.name)}</div>
+          <div>住所：${escapeHtml(c.address)}</div>
+          <div>電話：${escapeHtml(c.tel || "情報なし")}</div>
+          <div>ホームページ：${escapeHtml(c.url || "情報なし")}</div>
+          <div>電話ステータス：${STATUS_LABELS[c.status] || STATUS_LABELS.unknown}</div>
+          <div>特化情報（AI推定・要確認）：
+            ${["mental","medical_care","pediatric","rehabilitation"].map(k => {
+              const v = c.specialty_tags && c.specialty_tags[k];
+              return v ? TAG_LABELS[k] : null;
+            }).filter(Boolean).join("、") || "特になし"}
+          </div>
+        </div>
+      `).join("")}
+      <p style="font-size:11px; color:#555; font-family:sans-serif;">
+        ※特化情報はAIによるホームページ調査からの推定です。正確性を保証するものではないため、必ずご自身でご確認ください。
+      </p>
+    `;
+    window.print();
+  });
+
+  // --- inline onclick から呼べるように、必要な関数だけを外部公開する ---
+  window.__houmonkango = {
+    toggleCandidate,
+    removeCandidate,
+    setStatus: setCandidateStatus,
+    markReferred: markAsReferred,
+    removeHistory: removeHistoryEntry,
+  };
+
+  updateFabCount();
 
 })();
 </script>
