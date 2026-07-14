@@ -1429,9 +1429,9 @@ a{ color: var(--color-primary-dark); }
       return;
     }
 
+    // 変更後（「// 変更後」の行を削除するだけ）
     printArea.innerHTML = `
       <h1 style="font-family:sans-serif;">訪問看護 候補リスト（${new Date().toLocaleDateString("ja-JP")}時点）</h1>
-      // 変更後
       ${candidates.map(c => `
         <div style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
           <div style="font-weight:bold; font-size:16px;">${escapeHtml(c.name)}</div>
