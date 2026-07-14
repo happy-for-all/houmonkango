@@ -49,10 +49,13 @@ ALL_PREFECTURES = {
     "宮崎県": "miyazaki", "鹿児島県": "kagoshima", "沖縄県": "okinawa",
 }
 
-# 👑 New（2026-07-15追加）：特化タグ（精神科対応等）のColabリサーチが
-# 完了している都道府県のみを明記する。フロント側で「この地域は特化情報が
-# まだありません」という注意書きの出し分けに使う。
-SPECIALTY_RESEARCHED_PREFECTURES = ["osaka", "kyoto", "hyogo", "nara", "shiga", "wakayama"]
+# 修正済み（2026-07-15）：以前はここに「特化タグのリサーチが完了している
+# 都道府県」を手動の一覧（定数）として直接記述していたが、
+# specialty_result_kansai.json の中身と定数の両方を手動で更新する必要があり、
+# 片方だけ更新して不整合が起きるリスクがあった。
+# そのため、この一覧は定数として持たず、main() 内で
+# specialty_result_kansai.json の実際の中身から自動的に導出する
+# （詳細は main() 内のコメントを参照）。
 
 # CSVの更新時点（厚労省ページの表記に合わせて手動で更新してください）
 CSV_SOURCE_LABEL = "2025年12月末時点（厚労省公表）"
@@ -98,6 +101,27 @@ def safe_str(value):
         return None
     text = unicodedata.normalize("NFKC", str(value)).strip()
     return text if text else None
+
+
+# 修正済み（2026-07-15）：緯度・経度が空欄（pandasのNaN）の事業所が存在すると、
+# float(NaN) が例外を出さずにそのまま nan を返してしまい、
+# json.dump 実行時に不正な値 NaN がそのまま出力されてしまう不具合があった
+# （出力されたJSONファイルがブラウザ側の JSON.parse に失敗し、
+#   その都道府県のデータが丸ごと表示できなくなることを実機検証で確認済み）。
+# safe_str と同様に、変換前に明示的なNaN判定を行う安全なfloat変換関数を用意する。
+def safe_float(value):
+    """
+    NaN（pandasの欠損値）を確実にNoneとして扱う、安全なfloat変換。
+    float(nan) は例外を出さずに nan を返してしまうため、
+    そのまま json.dump すると不正な値（NaN）が出力されてしまう。
+    そのため、safe_str と同様に事前にNaN判定を行ってから変換する。
+    """
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 # ------------------------------------------------------------
@@ -186,8 +210,20 @@ def build_specialty_tags(jigyosho_no, specialty_data):
 
     for cat in SPECIALTY_CATEGORIES:
         cat_result = entry["tags"].get(cat)
-        if cat_result:
+
+        # 修正済み（2026-07-15）：cat_result が辞書ではない
+        # （AIリサーチスクリプトの出力が想定外の形式だった）場合、
+        # 従来は cat_result.get("status") が例外を出し、
+        # ビルド処理全体（全国47都道府県分）が停止してしまっていた。
+        # 1件の形式不備でビルド全体を止めないよう、辞書以外は
+        # 警告を出したうえで安全に「情報なし」として扱う。
+        if isinstance(cat_result, dict):
             tags[cat] = cat_result.get("status")  # "specialized" / "mentioned" / None
+        elif cat_result:
+            print(
+                f"  警告：事業所番号{jigyosho_no}のカテゴリ「{cat}」の"
+                f"形式が不正なためスキップしました：{cat_result!r}"
+            )
 
     return tags
 
@@ -226,14 +262,13 @@ def build_station_record(row, specialty_data):
     # 方書列は使わず、住所列をそのまま採用する（二重表示バグの修正）。
     full_address = address
 
-    try:
-        lat = float(row.get("緯度"))
-    except (TypeError, ValueError):
-        lat = None
-    try:
-        lon = float(row.get("経度"))
-    except (TypeError, ValueError):
-        lon = None
+    # 修正済み（2026-07-15）：以前は float(row.get(...)) を直接使っていたが、
+    # 緯度・経度が空欄（pandasのNaN）の場合、float(NaN) は例外を出さずに
+    # nan を返してしまい、そのまま json.dump すると不正な値 NaN が出力され、
+    # ブラウザ側の JSON.parse に失敗してその都道府県のデータが
+    # 丸ごと表示できなくなる不具合があった。safe_float で安全に変換する。
+    lat = safe_float(row.get("緯度"))
+    lon = safe_float(row.get("経度"))
 
     try:
         capacity = int(float(row.get("定員")))
@@ -287,17 +322,48 @@ def main():
     print(f"対象件数：{len(df_national)}件（全国47都道府県）")
 
     if os.path.exists(SPECIALTY_JSON_PATH):
-        with open(SPECIALTY_JSON_PATH, "r", encoding="utf-8") as f:
-            specialty_data = json.load(f)
-        print(f"特化情報リサーチ結果を読み込み：{len(specialty_data)}件分（関西のみ）")
+        # 修正済み（2026-07-15）：以前は json.load(f) の結果を無条件に
+        # 使っていたため、AIリサーチスクリプトの出力が万一JSONとして
+        # 壊れていた場合、ビルド処理全体（全国47都道府県分）が
+        # ここで停止してしまっていた。読み込み失敗時は特化タグ無しで
+        # 安全にビルドを継続する。
+        try:
+            with open(SPECIALTY_JSON_PATH, "r", encoding="utf-8") as f:
+                specialty_data = json.load(f)
+            print(f"特化情報リサーチ結果を読み込み：{len(specialty_data)}件分")
+        except json.JSONDecodeError as e:
+            print(
+                f"警告：{SPECIALTY_JSON_PATH} の形式が不正なため、"
+                f"特化タグ無しでビルドします：{e}"
+            )
+            specialty_data = {}
     else:
         specialty_data = {}
-        print("⚠️ specialty_result_kansai.json が見つからないため、特化タグ無しでビルドします")
+        print("警告：specialty_result_kansai.json が見つからないため、特化タグ無しでビルドします")
+
+    # 修正済み（2026-07-15）：どの都道府県がリサーチ済みかを手動の一覧で
+    # 二重管理していたが、specialty_result_kansai.json の中身と一覧の
+    # 両方を更新する必要があり、更新漏れのリスクがあった。
+    # 実際に specialty_data に含まれる事業所番号から、その事業所が
+    # 属する都道府県を逆引きすることで、リサーチ済み都道府県一覧を
+    # 自動的に導出する（手動更新が不要になる）。
+    df_national["_jigyosho_no_normalized"] = df_national["事業所番号"].map(safe_str)
+    researched_jigyosho_nos = set(specialty_data.keys())
+    researched_pref_names = set(
+        df_national.loc[
+            df_national["_jigyosho_no_normalized"].isin(researched_jigyosho_nos),
+            "都道府県名",
+        ]
+    )
+    researched_prefectures = sorted(
+        ALL_PREFECTURES[name] for name in researched_pref_names if name in ALL_PREFECTURES
+    )
+    del df_national["_jigyosho_no_normalized"]
 
     manifest = {
         "csv_source": CSV_SOURCE_LABEL,
         "specialty_research_count": len(specialty_data),
-        "specialty_researched_prefectures": SPECIALTY_RESEARCHED_PREFECTURES,
+        "specialty_researched_prefectures": researched_prefectures,
         "prefectures": {},
         "total_count": 0,
     }

@@ -776,6 +776,14 @@ a{ color: var(--color-primary-dark); }
   // ------------------------------------------------------------
   const PAGE_SIZE = 20;
 
+  // 修正済み（2026-07-15）：現在地取得時に読み込む「近い都道府県」の件数。
+  // 都道府県は中心座標（県庁所在地付近）との直線距離だけで上位N件を
+  // 選んでいるため、県境付近のユーザーの場合、実際には近い事業所がある
+  // 隣接県が僅差で選から漏れることがある（例：大阪駅付近から検索すると、
+  // 近い順4位の京都府が漏れて京都市内の事業所が一切表示されないケースを
+  // 実測で確認）。県境での取りこぼしを減らすため、3件から5件に増やす。
+  const NEARBY_PREFECTURE_COUNT = 5;
+
   const TAG_LABELS = {
     mental: "精神科対応",
     medical_care: "医療的ケア対応",
@@ -917,7 +925,7 @@ a{ color: var(--color-primary-dark); }
         statusEl.textContent = "近くのデータを読み込んでいます…";
         document.getElementById("prefSelect").value = "";
 
-        const nearestSlugs = findNearestPrefectureSlugs(userLocation, 3);
+        const nearestSlugs = findNearestPrefectureSlugs(userLocation, NEARBY_PREFECTURE_COUNT);
         try{
           const dataSets = await Promise.all(nearestSlugs.map(loadPrefectureData));
           allStations = dataSets.flat();
@@ -1025,6 +1033,11 @@ a{ color: var(--color-primary-dark); }
         _distance: (s.lat && s.lon) ? haversineKm(userLocation.lat, userLocation.lon, s.lat, s.lon) : null
       }));
       list.sort((a, b) => {
+        // 修正済み（2026-07-15）：a・bどちらも距離nullの場合、
+        // 以前はこの分岐が矛盾した比較結果（a>b かつ b>a）を返してしまい、
+        // 座標のない事業所同士の並び順が実行のたびに変わる可能性があった。
+        // 両方nullの場合は「同順位」として扱う。
+        if (a._distance === null && b._distance === null) return 0;
         if (a._distance === null) return 1;
         if (b._distance === null) return -1;
         return a._distance - b._distance;
