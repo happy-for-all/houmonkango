@@ -1407,7 +1407,6 @@ a{ color: var(--color-primary-dark); }
     } else {
       const station = allStations.find(s => s.jigyosho_no === jigyoshoNo);
       if (!station) return;
-      // 変更後（statusの下に1行追加）
       candidates.push({
         jigyosho_no: station.jigyosho_no,
         name: station.name,
@@ -1463,7 +1462,6 @@ a{ color: var(--color-primary-dark); }
     }
   }
 
-  // 変更後
   function markAsReferred(jigyoshoNo){
     const c = candidates.find(c => c.jigyosho_no === jigyoshoNo);
     if (!c) return;
@@ -1527,7 +1525,6 @@ a{ color: var(--color-primary-dark); }
         `<button class="status-btn ${c.status === key ? "active-" + key : ""}" onclick="window.__houmonkango.setStatus('${escapeAttr(c.jigyosho_no)}','${key}')">${STATUS_LABELS[key]}</button>`
       ).join("");
 
-      // 変更後（cand-addressの後に入力欄を追加）
       return `
         <div class="candidate-row">
           <div class="cand-name">${escapeHtml(c.name)}</div>
@@ -1613,11 +1610,9 @@ a{ color: var(--color-primary-dark); }
       return;
     }
 
-    // 変更後（「// 変更後」の行を削除するだけ）
     printArea.innerHTML = `
       <h1 style="font-family:sans-serif;">訪問看護 候補リスト（${new Date().toLocaleDateString("ja-JP")}時点）</h1>
       ${candidates.map(c => `
-        // 変更後（class="print-card" を追加）
         <div class="print-card" style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
           <div style="font-weight:bold; font-size:16px;">${escapeHtml(c.name)}</div>
           ${c.clientLabel ? `<div>利用者：${escapeHtml(c.clientLabel)}</div>` : ""}
@@ -1640,7 +1635,6 @@ a{ color: var(--color-primary-dark); }
     window.print();
   });
 
- // 変更後
   window.__houmonkango = {
     toggleCandidate,
     removeCandidate,
