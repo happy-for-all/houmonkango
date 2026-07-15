@@ -9,6 +9,7 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2908004621823900" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -577,6 +578,14 @@ a{ color: var(--color-primary-dark); }
     display: block !important;
     width: 100%;
   }
+  .print-card{
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .print-card:nth-of-type(4n):not(:last-of-type){
+    break-after: page;
+    page-break-after: always;
+  }
 }
 </style>
 </head>
@@ -704,6 +713,21 @@ a{ color: var(--color-primary-dark); }
   </div>
 </div>
 
+
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-layout="in-article"
+       data-ad-format="fluid"
+       data-ad-client="ca-pub-2908004621823900"
+       data-ad-slot="5820083954"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+
+
+
+
+   
 <!-- ============================================================
      コラムセクション
      ============================================================ -->
@@ -883,6 +907,17 @@ a{ color: var(--color-primary-dark); }
     </div>
   </details>
 
+
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-layout="in-article"
+       data-ad-format="fluid"
+       data-ad-client="ca-pub-2908004621823900"
+       data-ad-slot="5820083954"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+   
 </section>
 
 <footer class="site-footer">
@@ -1582,7 +1617,8 @@ a{ color: var(--color-primary-dark); }
     printArea.innerHTML = `
       <h1 style="font-family:sans-serif;">訪問看護 候補リスト（${new Date().toLocaleDateString("ja-JP")}時点）</h1>
       ${candidates.map(c => `
-        <div style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
+        // 変更後（class="print-card" を追加）
+        <div class="print-card" style="border:1px solid #999; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-family:sans-serif;">
           <div style="font-weight:bold; font-size:16px;">${escapeHtml(c.name)}</div>
           ${c.clientLabel ? `<div>利用者：${escapeHtml(c.clientLabel)}</div>` : ""}
           <div>住所：${escapeHtml(c.address)}</div>
