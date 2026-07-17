@@ -36,6 +36,13 @@ export default {
     const corsHeaders = buildCorsHeaders(origin);
     Object.entries(corsHeaders).forEach(([key, value]) => newHeaders.set(key, value));
 
+    // ⚠️修正メモ：run_worker_first を有効にしてWorkerを経由するようにした結果、
+    // Cloudflareが静的ファイル配信時に自動的に付与していた可能性のあるヘッダー類が
+    // 反映されなくなり、ブラウザの位置情報（Geolocation API）が使えなくなる
+    // （現在地取得が失敗する）不具合が発生した。Permissions-Policyで
+    // geolocationを明示的に許可することで、この問題を解消する。
+    newHeaders.set('Permissions-Policy', 'geolocation=(self)');
+
     return new Response(response.body, { status: response.status, headers: newHeaders });
   }
 };
